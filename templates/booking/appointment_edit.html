@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h3 class="mb-4 fw-bold">Редактировать запись</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Клиент</label>
+                            {{ form.client }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Дата начала</label>
+                            {{ form.date_from }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Время начала</label>
+                            {{ form.time_from }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Дата окончания</label>
+                            {{ form.date_to }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Время окончания</label>
+                            {{ form.time_to }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Тема</label>
+                            {{ form.topic }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Заметки</label>
+                            {{ form.notes }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Статус</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">Сохранить изменения</button>
+                    <a href="{% url 'psychologist_dashboard' %}" class="btn btn-outline-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

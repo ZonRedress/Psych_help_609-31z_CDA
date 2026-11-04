@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-calendar3 text-primary me-2"></i>Расписание свободных окон</h2>
+    </div>
+    {% if schedules %}
+    <div class="row g-4">
+        {% for s in schedules %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 hover-shadow">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-4">
+                        {% if s.psychologist.photo %}
+                            <img src="{{ s.psychologist.photo.url }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {% else %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 fw-bold fs-5" style="width: 50px; height: 50px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                {{ s.psychologist.first_name|first|default:"П" }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark">{{ s.psychologist.first_name }} {{ s.psychologist.last_name }}</h6>
+                            <small class="text-muted">Психолог</small>
+                        </div>
+                    </div>
+                    <div class="bg-light p-3 rounded-4 text-center mb-4">
+                        <div class="fw-bold fs-5 mb-1 text-dark"><i class="bi bi-calendar-event text-primary me-1"></i> {{ s.datetime_from|date:"d.m.Y" }}</div>
+                        <div class="text-muted"><i class="bi bi-clock me-1"></i> {{ s.datetime_from|date:"H:i" }} – {{ s.datetime_to|date:"H:i" }}</div>
+                    </div>
+                    <div class="mt-auto">
+                        {% if user.is_authenticated and user.is_client %}
+                            <button class="btn btn-primary w-100 rounded-pill py-2" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ s.pk }}">
+                                Записаться
+                            </button>
+                            
+                            <div class="collapse mt-2" id="confirm-{{ s.pk }}">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="schedule_id" value="{{ s.pk }}">
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill py-2 mb-2">Подтвердить</button>
+                                    <button class="btn btn-link w-100 text-muted p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ s.pk }}">
+                                        Отмена
+                                    </button>
+                                </form>
+                            </div>
+                        {% elif not user.is_authenticated %}
+                            <a href="{% url 'login' %}?next={% url 'schedule_list' %}" class="btn btn-outline-primary w-100 rounded-pill py-2">
+                                Войти и записаться
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <div class="alert alert-light border shadow-sm rounded-4 text-center py-5 mt-4">
+        <i class="bi bi-calendar-x fs-2 text-muted d-block mb-3"></i>
+        <h5 class="fw-bold text-dark mb-2">Свободных окон пока нет</h5>
+        <p class="text-muted mb-0">Загляните позже или выберите другого психолога.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-shadow {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-2">
+    <h2 class="mb-4 fw-bold"><i class="bi bi-calendar2-week text-primary me-2"></i>Мое расписание</h2>
+    {% if appointments %}
+    <div class="row g-4">
+        {% for a in appointments %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 hover-shadow {% if a.status == 2 %}bg-light opacity-75{% endif %}">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="badge bg-primary text-white rounded-pill px-3 py-2 fs-6">
+                            <i class="bi bi-calendar-event me-1"></i> {{ a.schedule.datetime_from|date:"d.m.Y" }}
+                        </div>
+                        {% if a.status == 1 %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i> Запланирована
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2">
+                                <i class="bi bi-archive me-1"></i> Завершена
+                            </span>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title fw-bold mb-2">{{ a.topic|default:"Консультация" }}</h5>
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-clock me-1"></i> {{ a.schedule.datetime_from|date:"H:i" }} – {{ a.schedule.datetime_to|date:"H:i" }}
+                    </p>
+                    <hr class="text-muted opacity-25">
+                    <div class="d-flex align-items-center bg-light p-3 rounded-3 mt-3">
+                        {% if a.schedule.psychologist.photo %}
+                            <img src="{{ a.schedule.psychologist.photo.url }}" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {% else %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 fw-bold fs-5" style="width: 45px; height: 45px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                {{ a.schedule.psychologist.first_name|first|default:"П" }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Психолог</small>
+                            <span class="fw-semibold">{{ a.schedule.psychologist.first_name }} {{ a.schedule.psychologist.last_name }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if a.status == 1 %}
+                <div class="card-footer bg-white border-top-0 p-4 pt-0 text-end">
+                    <form method="post" action="{% url 'cancel_appointment' a.pk %}" onsubmit="return confirm('Вы уверены, что хотите отменить запись?')">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-4">
+                            <i class="bi bi-x-lg me-1"></i> Отменить
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <div class="card shadow-sm border-0 rounded-4 text-center py-5">
+        <div class="card-body">
+            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                <i class="bi bi-calendar-x display-4 text-muted"></i>
+            </div>
+            <h4 class="fw-bold">У вас пока нет записей</h4>
+            <p class="text-muted mb-4">Здесь будет отображаться ваше расписание консультаций.</p>
+            <a href="{% url 'schedule_list' %}" class="btn btn-primary rounded-pill px-4">
+                Найти психолога
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-shadow {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important;
+    }
+</style>
+{% endblock %}

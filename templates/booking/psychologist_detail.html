@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <div class="card shadow-sm border-0 mb-4 text-center p-4 rounded-4">
+            {% if psychologist.photo %}
+                <img src="{{ psychologist.photo.url }}" class="rounded-circle shadow-sm mx-auto mb-3" style="width: 130px; height: 130px; object-fit: cover; border: 4px solid #f8f9fa;">
+            {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm mx-auto mb-3" style="width: 130px; height: 130px; font-size: 50px; font-weight: bold;">
+                    {{ psychologist.first_name|first|default:"П" }}
+                </div>
+            {% endif %}
+            <h2 class="fw-bold mb-2">{{ psychologist.get_full_name|default:psychologist.username }}</h2>
+            <div class="mb-3">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fs-6">
+                    <i class="bi bi-award-fill me-1"></i> Опыт работы: {{ psychologist.experience_years|default:"0" }} лет
+                </span>
+            </div>
+            {% if psychologist.bio %}
+            <div class="text-start mt-4 p-4 rounded-4 bg-light">
+                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-chat-left-text me-2"></i>Обо мне</h5>
+                <p class="text-secondary mb-0 lh-lg" style="white-space: pre-line;">{{ psychologist.bio }}</p>
+            </div>
+            {% endif %}
+        </div>
+        <h4 class="mb-3 fw-bold"><i class="bi bi-calendar-check text-primary me-2"></i>Свободное время для записи</h4>
+        {% if free_slots %}
+            <div class="row g-3">
+            {% for slot in free_slots %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 hover-shadow" style="transition: transform 0.2s;">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="fw-bold fs-5 mb-1 text-dark">
+                                        {{ slot.datetime_from|date:"d.m.Y" }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-clock me-1"></i>{{ slot.datetime_from|date:"H:i" }} – {{ slot.datetime_to|date:"H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if user.is_authenticated and user.is_client %}
+                                <button class="btn btn-primary w-100 rounded-pill mt-auto" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ slot.pk }}">
+                                    Записаться
+                                </button>
+                                
+                                <div class="collapse mt-2" id="confirm-{{ slot.pk }}">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="schedule_id" value="{{ slot.pk }}">
+                                        <button type="submit" class="btn btn-success w-100 rounded-pill mb-2">Подтвердить</button>
+                                        <button class="btn btn-link w-100 text-muted p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ slot.pk }}">
+                                            Отмена
+                                        </button>
+                                    </form>
+                                </div>
+                            {% elif not user.is_authenticated %}
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary w-100 rounded-pill mt-auto">Войти и записаться</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-light border shadow-sm rounded-4 text-center py-4">
+                <i class="bi bi-calendar-x fs-2 text-muted d-block mb-2"></i>
+                <span class="text-muted">Пока нет свободных окон для записи.</span>
+            </div>
+        {% endif %}
+        <div class="mt-5">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> На главную
+            </a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
